@@ -276,8 +276,20 @@ if (!defined('C3_CODECOVERAGE_MEDIATE_STORAGE')) {
 
         if (isset($_SERVER['HTTP_X_CODECEPTION_CODECOVERAGE_SUITE'])) {
             $suite = $_SERVER['HTTP_X_CODECEPTION_CODECOVERAGE_SUITE'];
+
+            $configFile = null;
+
+            if (strpos($suite, '\\') !== false) {
+                list($includeName, $suite) = explode('\\', $suite, 2);
+                $configFile = codecept_root_dir() . $includeName;
+
+                if (strpos($suite, 'tests.') === 0) {
+                    $suite = substr($suite, 6);
+                }
+            }
+
             try {
-                $settings = \Codeception\Configuration::suiteSettings($suite, \Codeception\Configuration::config());
+                $settings = \Codeception\Configuration::suiteSettings($suite, \Codeception\Configuration::config($configFile));
             } catch (Exception $e) {
                 __c3_error($e->getMessage());
                 $settings = [];
